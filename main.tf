@@ -1,7 +1,3 @@
-provider "azurerm" {
-  version = "~> 1.39"
-}
-
 resource "azurerm_resource_group" "rg" {
   count    = var.create_resource_group ? 1 : 0 # conditional creation
   name     = var.resource_group_name
