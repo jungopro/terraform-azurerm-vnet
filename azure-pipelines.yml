@@ -1,0 +1,58 @@
+name: Build-$(Build.BuildId)
+
+trigger:
+  branches:
+    include:
+    - master
+    - dev
+  paths:
+    exclude:
+    - azure-pipelines.yml
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: TerraformInstaller@0
+  displayName: 'Install Terraform version $(TF-Version)'
+  inputs:
+    terraformVersion: '$(TF-Version)'
+- script: terraform init -get=true -upgrade=true
+  workingDirectory: '$(Build.SourcesDirectory)'
+  displayName: 'Terraform Init'
+- script: 'terraform validate'
+  workingDirectory: '$(Build.SourcesDirectory)'
+  displayName: 'Validate Terraform Code'
+- script: 'terraform plan -var=location=$(location) -var=resource_group_name=$(resource-group) -var=create_resource_group=true'
+  workingDirectory: '$(Build.SourcesDirectory)'
+  displayName: 'Terraform Dry Run (Plan)'
+- script: 'terraform apply -var=location=$(location) -var=resource_group_name=$(resource-group) -var=create_resource_group=true -auto-approve'
+  workingDirectory: '$(Build.SourcesDirectory)'
+  displayName: 'Terraform Run (Apply)'
+- script: 'terraform destroy -var=location=$(location) -var=resource_group_name=$(resource-group) -var=create_resource_group=true -auto-approve'
+  workingDirectory: '$(Build.SourcesDirectory)'
+  displayName: 'Terraform Destroy'
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: |
+     **/*
+     !.git/**/*
+     !.terraform/**/*
+     !*.tfstate
+     !*.tfstate.*
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    CleanTargetFolder: true
+    OverWrite: true
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'github.com_jungopro'
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'userSpecifiedTag'
+    tag: 'release'
+    releaseNotesSource: 'inline'
+    releaseNotesInline: 'Additional Notes'
+    changeLogCompareToRelease: 'lastFullRelease'
+    changeLogType: 'commitBased'
