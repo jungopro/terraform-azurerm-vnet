@@ -3,7 +3,7 @@ output "resource_group_name" {
 }
 
 output "resource_group_location" {
-  value = var.create_resource_group ? azurerm_resource_group.rg[0].location : resource_group_location
+  value = var.create_resource_group ? azurerm_resource_group.rg[0].location : var.resource_group_location
 }
 
 output "vnet_id" {
