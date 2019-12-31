@@ -9,7 +9,7 @@ This module also has the option to create a Resource Group for the vNet, althoug
 
 ```hcl
 module "vnet" {
-  source              = "jungopro/vnet/azurerm"
+  source = "jungopro/vnet/azurerm"
 
   tags = {
     environment = "dev"
@@ -21,7 +21,7 @@ module "vnet" {
 
 ```hcl
 module "vnet" {
-  source              = "jungopro/vnet/azurerm"
+  source                  = "jungopro/vnet/azurerm"
   create_resource_group   = true
   resource_group_name     = "myCustomRG"
   resource_group_location = "westus"

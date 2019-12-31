@@ -18,9 +18,21 @@ output "vnet_address_space" {
   value = azurerm_virtual_network.vnet.address_space
 }
 
-output "subnet_info" {
+output "subnet_name_to_id" {
   value = {
     for subnet in azurerm_subnet.subnet:
-    subnet.id => subnet.name
+    subnet.name => subnet.id
   }
+}
+
+output "subnets_full_info" {
+  value = azurerm_subnet.subnet
+}
+
+output "subnets_ids_list" {
+  value = values(azurerm_subnet.subnet).*.id
+}
+
+output "subnets_ids" {
+  value = [for index, value in azurerm_subnet.subnet : value.id]
 }
